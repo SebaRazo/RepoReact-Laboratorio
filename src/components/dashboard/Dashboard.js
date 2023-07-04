@@ -39,16 +39,20 @@ const Dashboard = () => {
   const [yearFiltered, setYearFiltered] = useState("2023");
 
   useEffect(() => {
-    fetch("https://63a44a012a73744b0072f847.mockapi.io/api/books/Books", {
+    fetch("https://localhost:8080/book", {
       headers: {
         Accept: "application/json",
       },
     })
-      .then((response) => response.json())
+      .then((response) => {
+        return response.json();
+      })
       .then((bookData) => {
         const booksMapped = bookData.map((book) => ({
-          ...book,
-          dateRead: new Date(book.dateRead),
+          tittle: book.bookTitle,
+          author: book.author,
+          pageCount: book.amountPages,
+          dateRead: new Date(book.date),
         }));
         setBooks(booksMapped);
       })
@@ -58,16 +62,18 @@ const Dashboard = () => {
   const addBookHandler = (book) => {
     const dateString = book.dateRead.toISOString().slice(0, 10);
 
-    fetch("https://63a44a012a73744b0072f847.mockapi.io/api/books/Books", {
+    fetch("https://localhost:8080/book/crear", {
       method: "POST",
       headers: {
         "content-type": "application/json",
       },
       body: JSON.stringify({
-        title: book.title,
+        bookTitle: book.title,
         author: book.author,
-        dateRead: dateString,
-        pageCount: parseInt(book.pageCount, 10),
+        //dateRead: dateString,
+        //pageCount: parseInt(book.pageCount, 10),
+        date: dateString,
+        amountPages: parseInt(book.pageCount, 10),
       }),
     })
       .then((response) => {
@@ -82,9 +88,9 @@ const Dashboard = () => {
       })
       .catch((error) => console.log(error));
 
-    // const newBooksData = [book, ...books];
-    // setBooks(newBooksData);
-    // localStorage.setItem("books", JSON.stringify(newBooksData));
+    const newBooksData = [book, ...books];
+    setBooks(newBooksData);
+    localStorage.setItem("books", JSON.stringify(newBooksData));
   };
 
   const handleFilterChange = (year) => {
